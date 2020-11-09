@@ -58,8 +58,22 @@ class Database private constructor(private val resolvedVendor: String? = null, v
     companion object {
         private val dialects = ConcurrentHashMap<String, () -> DatabaseDialect>()
 
+        /*
         private val connectionInstanceImpl : DatabaseConnectionAutoRegistration =
                 ServiceLoader.load(DatabaseConnectionAutoRegistration::class.java, Database::class.java.classLoader).firstOrNull() ?: error("Can't load implementation for ${DatabaseConnectionAutoRegistration::class.simpleName}")
+        */
+
+        private var _connectionInstanceImpl : DatabaseConnectionAutoRegistration? = null
+        private val connectionInstanceImpl : DatabaseConnectionAutoRegistration
+            get() {
+                return _connectionInstanceImpl ?: error("Implementation for ${DatabaseConnectionAutoRegistration::class.simpleName} was not set")
+            }
+
+        fun setDatabaseConnectionAutoRegistrationImpl(impl: DatabaseConnectionAutoRegistration) {
+            _connectionInstanceImpl = impl
+        }
+
+
 
         init {
             registerDialect(H2Dialect.dialectName) { H2Dialect() }
